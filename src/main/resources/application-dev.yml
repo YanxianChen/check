@@ -1,0 +1,12 @@
+server:
+  port: 5078
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://119.23.249.176:3306/echeck?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8
+    username: root
+    password: qifengle
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
