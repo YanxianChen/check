@@ -7,3 +7,4 @@ spring:
       enabled: true
 server:
   context-path: /check
+  
