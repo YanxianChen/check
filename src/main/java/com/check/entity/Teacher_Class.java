@@ -1,6 +1,7 @@
 package com.check.entity;
 
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,13 +16,19 @@ public class Teacher_Class {
 	@GeneratedValue
 	private int id;
 	//老师工号
+	@Column(nullable=false)
 	private int tno;
 	//课程号
+	@Column(nullable=false)
 	private int cno;
 	//老师姓名
+	@Column(nullable=false)
 	private String tname;
 	//课程名
+	@Column(nullable=false)
 	private String cname;
+
+
 
 
 	public String getTname() {
@@ -53,5 +60,11 @@ public class Teacher_Class {
 	}
 	public void setTno(int tno) {
 		this.tno = tno;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "Teacher_Class [tno=" + tno + ", cno=" + cno + ", tname=" + tname + ", cname=" + cname + "]";
 	}
 }

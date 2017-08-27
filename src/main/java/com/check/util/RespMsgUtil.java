@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
+
 /**
  * Created by yongg on 2017/5/5.
  */
@@ -37,6 +38,7 @@ public class RespMsgUtil {
 
     public static String ERR_DELETE_NOT_EXIST = "删除失败，数据不存在！";
 
+    public static String ERR_EMPTY_JSON = "存在空条件！";
     /**
      * 获取一个基础的成功响应JSON
      * @return
@@ -57,10 +59,8 @@ public class RespMsgUtil {
         JSONObject jo = new JSONObject();
         try {
             jo.put(RESULT_KEY, SUCCESS);
-            if((data instanceof  JSONObject) || (data instanceof JSONArray)){
+            if(data instanceof  JSONObject){
                 jo.put(DATA_KEY, data);
-            }else if(data instanceof List){
-                jo.put(DATA_KEY, MjJSONUtil.listToJson((List)data));
             }else{
                 jo.put(DATA_KEY, MjJSONUtil.beanToJson(data));
             }
@@ -76,6 +76,27 @@ public class RespMsgUtil {
         return jo;
     }
 
+    
+    public static JSONObject getSuccessResponseJoWithData(List<?> data){
+        JSONObject jo = new JSONObject();
+        try {
+            jo.put(RESULT_KEY, SUCCESS);
+            if(data instanceof JSONArray){
+                jo.put(DATA_KEY, data);
+            }else if(data instanceof List){
+                jo.put(DATA_KEY, MjJSONUtil.listToJson(data));
+            }
+
+            jo.put(ERR_KEY, "");
+        } catch (IOException e) {
+            jo.put(RESULT_KEY, FAIL);
+            jo.put(DATA_KEY, "");
+            jo.put(ERR_KEY, "JSON转换出错！");
+            e.printStackTrace();
+        }
+        
+        return jo;
+    }
     /**
      * 获取一个基础的失败响应JSON
      * @return
@@ -175,5 +196,10 @@ public class RespMsgUtil {
     public static JSONObject getFailResponseJoErrDeleteNotExist(){
 
         return getFailResponseJoWithErrMsg(ERR_DELETE_NOT_EXIST);
+    }
+
+     public static JSONObject getFailResponseJoErrJSONError(){
+
+        return getFailResponseJoWithErrMsg(ERR_EMPTY_JSON);
     }
 }
