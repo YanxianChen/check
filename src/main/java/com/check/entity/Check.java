@@ -1,14 +1,12 @@
 package com.check.entity;
 
-import java.util.Date;
+
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="attend")
@@ -26,14 +24,12 @@ public class Check {
 	//学号
 	@Column(nullable=false)
 	private int sno;
-	
 	//学生姓名
 	@Column(nullable=false)
 	private String sname;
-	//签到日期
+	//签到时间
 	@Column(nullable=false)
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date date;
+	private String time;
 	//本次出勤记录
 	@Column(nullable=false)
 	private int attendence;
@@ -66,11 +62,11 @@ public class Check {
 	public void setSname(String sname) {
 		this.sname = sname;
 	}
-	public Date getDate() {
-		return date;
+	public String getTime() {
+		return time;
 	}
-	public void setDate(Date date) {
-		this.date = date;
+	public void setTime(String date) {
+		this.time = date;
 	}
 	public int getAttendence() {
 		return attendence;
@@ -86,7 +82,7 @@ public class Check {
 	}
 	@Override
 	public String toString() {
-		return "Check [cno=" + cno + ", cname=" + cname + ", sno=" + sno + ", sname=" + sname + ", date=" + date
+		return "Check [cno=" + cno + ", cname=" + cname + ", sno=" + sno + ", sname=" + sname + ", date=" + time
 				+ ", attendence=" + attendence + ", attend_times=" + attend_times + "]";
 	}
 }

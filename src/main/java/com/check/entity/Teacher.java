@@ -1,21 +1,12 @@
 package com.check.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by yancychan on 17-6-28.
@@ -37,7 +28,9 @@ public class Teacher {
 	//性别
 	@Column(nullable=false)	
     private String gender;
-	
+	//密码
+	@Column(nullable=false)
+	private String password;
 	
 	public int getTno() {
 		return tno;
@@ -52,7 +45,13 @@ public class Teacher {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
+	public String getPassword() {
+		return password;
+	}
 	
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	
 	public String getName() {
 		return name;
@@ -60,7 +59,10 @@ public class Teacher {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	@Override
+		public String toString() {
+			return "Teacher [tno=" + tno + ", name=" + name + ", gender=" + gender + ", password=" + password + "]";
+		}
   
 	
 }

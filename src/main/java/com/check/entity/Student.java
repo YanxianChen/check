@@ -26,7 +26,7 @@ public class Student {
 	@Column(unique=true,nullable=false)
 	private int sno;
 	//mac地址
-	@Column(unique=true,nullable=false)
+	@Column(name="mac_id",unique=true,nullable=false)
 	private String macID;
 	//姓名
 	@Column(nullable=false)

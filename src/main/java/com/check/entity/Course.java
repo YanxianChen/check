@@ -1,21 +1,14 @@
 package com.check.entity;
 
-import java.sql.Time;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.persistence.JoinColumn;
 
-/**
- * Created by yancychan on 17-6-28.
- */
+
+
 @Entity
 @Table(name="course")
 public class Course {
@@ -23,18 +16,33 @@ public class Course {
 	@GeneratedValue
 	private int id;
 	
-	@Column(unique=true,nullable=false)
+	@Column(name="course_id",unique=true,nullable=false)
 	private int courseID;//课程号
 	
-	@Column(unique=true,nullable=false)
+	@Column(name="course_name",nullable=false)
 	private String courseName;//课程名
 	
-
+	@Column(nullable=false)
+	private int period;//课时
+	
+	@Column(nullable=false)
 	private int capacity;//容量
-	private String week;//周(星期几)
-	private Time start_time;//起始时间
-	private Time end_time;//结束时间
+	
+	@Column(nullable=false)
 	private String place;//地点
+	
+	@Column(nullable=false)
+	private String time;//时间
+	
+	public Course() {}
+	
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
 	
 
 	public String getPlace() {
@@ -45,7 +53,13 @@ public class Course {
 		this.place = place;
 	}
 
-	public Course() {}
+	public int getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(int period) {
+		this.period = period;
+	}
 
 	public int getCourseID() {
 		return courseID;
@@ -78,41 +92,12 @@ public class Course {
 	}
 
 
-	public String getWeek() {
-		return week;
-	}
-
-
-	public void setWeek(String week) {
-		this.week = week;
-	}
-
-
-	public Time getStart_time() {
-		return start_time;
-	}
-
-
-	public void setStart_time(Time start_time) {
-		this.start_time = start_time;
-	}
-
-
-	public Time getEnd_time() {
-		return end_time;
-	}
-
-
-	public void setEnd_time(Time end_time) {
-		this.end_time = end_time;
-	}
-
-
-
-
-
 	
-	
+	@Override
+	public String toString() {
+		return "Course [courseID=" + courseID + ", courseName=" + courseName + ", period=" + period + ", capacity="
+				+ capacity + ", place=" + place + ", time=" + time + "]";
+	}
 	
 	
 }
