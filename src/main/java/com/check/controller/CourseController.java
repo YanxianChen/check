@@ -1,55 +1,63 @@
 package com.check.controller;
 
 
-
-import java.io.IOException;
-import java.util.List;
-
+import com.alibaba.fastjson.JSONObject;
+import com.check.dao.ClassRoomRepository;
+import com.check.dao.CourseRepository;
+import com.check.dao.TeacherRepository;
+import com.check.entity.Course;
+import com.check.entity.Teacher;
+import com.check.util.MjStringUtil;
+import com.check.util.RespMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.alibaba.fastjson.JSONObject;
-import com.check.dao.CourseRepository;
-import com.check.entity.Course;
-import com.check.util.MjJSONUtil;
-import com.check.util.MjStringUtil;
-import com.check.util.RespMsgUtil;
-
-
-
+import java.util.List;
+import java.io.IOException;
 
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/course")
 public class CourseController {
 	
 	@Autowired
 	private CourseRepository courseRepository;
+
+	@Autowired
+	private TeacherRepository teacherRepository;
+
+	@Autowired
+	private ClassRoomRepository classRoomRepository;
 	
 	//添加
 	@RequestMapping(value="/add")
 	protected JSONObject add(@RequestBody JSONObject jsonObject) throws IOException {
-		JSONObject jo = null;
+		JSONObject jo ;
 		int ID = jsonObject.getIntValue("courseID");
 		String name = jsonObject.getString("courseName");
 		int period = jsonObject.getIntValue("period");
-		int capacity = jsonObject.getIntValue("capacity");
-		String place = jsonObject.getString("place");
-		String time = jsonObject.getString("time");
-		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(ID) || MjStringUtil.isEmpty(name) || MjStringUtil.isEmpty(period) ||
-				MjStringUtil.isEmpty(capacity) || MjStringUtil.isEmpty(place) || MjStringUtil.isEmpty(time)){
+		int tno = jsonObject.getIntValue("tno");
+		String tname = jsonObject.getString("tname");
+
+		if(MjStringUtil.isEmpty(jsonObject)){
 			return RespMsgUtil.getFailResponseJoErrJSONError();
 		}
-		
-		Course course = MjJSONUtil.jsonToBean(jsonObject,Course.class);
-		if(courseRepository.findByCourseID(course.getCourseID())!=null){
+		if(teacherRepository.findByTno(tno)==null){
+			return RespMsgUtil.getFailResponseJoWithErrMsg("该老师不存在，请重新选择工号");
+		}
+		Course course = new Course(ID,name,period,tno,tname);
+		if(courseRepository.findByCourseID(course.getCourseID())!=null || courseRepository.findByCourseName(course.getCourseName())!=null){
 			return RespMsgUtil.getFailResponseJoErrInsertExist();
 		}
 		
 		try {
+		Teacher teacher = teacherRepository.findByTno(tno);
+		teacher.getCourses().add(course);
 		course = courseRepository.save(course);
+		teacherRepository.save(teacher);
 		jo = RespMsgUtil.getSuccessResponseJoWithData(course);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,7 +89,7 @@ public class CourseController {
 	}
 	
 	@RequestMapping("/getByName")
-	protected JSONObject getByCourseName(@RequestBody JSONObject jsonObject) throws IOException {
+	protected JSONObject getByName(@RequestBody JSONObject jsonObject) throws IOException {
 		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getString("name"))){
 			return RespMsgUtil.getFailResponseJoErrJSONError();
 		}
@@ -98,72 +106,8 @@ public class CourseController {
 			return RespMsgUtil.getSuccessResponseJoWithData(courses);
 		}
 	}
-	
 
-	
-	@RequestMapping("/getAll")
-	protected JSONObject  getAll() throws IOException{
-		
-		List<Course> courses;
-		try {
-			courses = courseRepository.findAll();
-		} catch (Exception e) {
-			e.printStackTrace();
-		return	add(RespMsgUtil.getFailResponseJoErrHibernate());
-		
-		}
-		
-		return RespMsgUtil.getSuccessResponseJoWithData(courses);
-	}
-	
 
-	@RequestMapping("/count")
-	protected JSONObject count() {
-		JSONObject jsonObject = new JSONObject();
-		try {
-			long count = courseRepository.count();
-			jsonObject.put("count",count);
-		} catch (Exception e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-			return RespMsgUtil.getFailResponseJoErrHibernate();
-		}
-		return RespMsgUtil.getSuccessResponseJoWithData(jsonObject);
-	}
-	
-	//删除
-	@RequestMapping("/deleteByID")
-	protected JSONObject deleteByID(@RequestBody JSONObject jsonObject) {
-		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getIntValue("ID"))){
-			return RespMsgUtil.getFailResponseJoErrJSONError();
-		}else if(courseRepository.findByCourseID(jsonObject.getIntValue("ID")) == null){
-			return RespMsgUtil.getFailResponseJoErrDeleteNotExist();
-		}
-		
-		try {
-				courseRepository.deleteByCourseID(jsonObject.getIntValue("ID"));
-			} catch (Exception e) {
-				// TODO 自动生成的 catch 块
-				e.printStackTrace();
-				return RespMsgUtil.getFailResponseJoErrHibernate();
-			}
-		return RespMsgUtil.getSuccessResponseJo();
-	}
-	
-	
-	@RequestMapping("deleteAll")
-	protected JSONObject deleteAll() {
-		try {
-			courseRepository.deleteAll();
-		} catch (Exception e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-			return RespMsgUtil.getFailResponseJoErrHibernate();
-		}
-		return RespMsgUtil.getSuccessResponseJo();
-	}
-	
-	
 	//更新
 	@RequestMapping("/updateName")
 	protected JSONObject updateNameByID(@RequestBody JSONObject jsonObject) {
@@ -172,59 +116,11 @@ public class CourseController {
 		}
 		
 		Course course;
+		if(courseRepository.findByCourseID(jsonObject.getIntValue("ID"))==null){
+			return RespMsgUtil.getFailResponseJoErrUpdateNotExist();
+		}
 		try {
 			courseRepository.updateNameByID(jsonObject.getString("newName"), jsonObject.getIntValue("ID"));
-			course = courseRepository.findByCourseID(jsonObject.getIntValue("ID"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return RespMsgUtil.getFailResponseJoErrHibernate();
-		}
-		return RespMsgUtil.getSuccessResponseJoWithData(course);
-	}
-	
-	@RequestMapping("/updatePlace")
-	protected JSONObject updatePlaceByID(@RequestBody JSONObject jsonObject) {
-		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getString("newPlace")) || MjStringUtil.isEmpty(jsonObject.getIntValue("ID"))){
-			return RespMsgUtil.getFailResponseJoErrJSONError();
-		}
-		
-		Course course;
-		try {
-			courseRepository.updatePlaceByID(jsonObject.getString("newPlace"), jsonObject.getIntValue("ID"));
-			course = courseRepository.findByCourseID(jsonObject.getIntValue("ID"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return RespMsgUtil.getFailResponseJoErrHibernate();
-		}
-		return RespMsgUtil.getSuccessResponseJoWithData(course);
-	}
-	
-	@RequestMapping("/updateTime")
-	protected JSONObject updateTimeByID(@RequestBody JSONObject jsonObject) {
-		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getString("newTime")) || MjStringUtil.isEmpty(jsonObject.getIntValue("ID"))){
-			return RespMsgUtil.getFailResponseJoErrJSONError();
-		}
-		
-		Course course;
-		try {
-			courseRepository.updateTimeByID(jsonObject.getString("newTime"), jsonObject.getIntValue("ID"));
-			course = courseRepository.findByCourseID(jsonObject.getIntValue("ID"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return RespMsgUtil.getFailResponseJoErrHibernate();
-		}
-		return RespMsgUtil.getSuccessResponseJoWithData(course);
-	}
-	
-	@RequestMapping("/updateCapacity")
-	protected JSONObject updateCapacityByID(@RequestBody JSONObject jsonObject) {
-		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getIntValue("newCapacity")) || MjStringUtil.isEmpty(jsonObject.getIntValue("ID"))){
-			return RespMsgUtil.getFailResponseJoErrJSONError();
-		}
-		
-		Course course;
-		try {
-			courseRepository.updateCapacityByID(jsonObject.getIntValue("newCapacity"), jsonObject.getIntValue("ID"));
 			course = courseRepository.findByCourseID(jsonObject.getIntValue("ID"));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -238,8 +134,10 @@ public class CourseController {
 		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getIntValue("newPeriod")) || MjStringUtil.isEmpty(jsonObject.getIntValue("ID"))){
 			return RespMsgUtil.getFailResponseJoErrJSONError();
 		}
-		
 		Course course;
+		if(courseRepository.findByCourseID(jsonObject.getIntValue("ID"))==null){
+			return RespMsgUtil.getFailResponseJoErrUpdateNotExist();
+		}
 		try {
 			courseRepository.updatePeriodByID(jsonObject.getIntValue("newPeriod"), jsonObject.getIntValue("ID"));
 			course = courseRepository.findByCourseID(jsonObject.getIntValue("ID"));
@@ -249,5 +147,34 @@ public class CourseController {
 		}
 		return RespMsgUtil.getSuccessResponseJoWithData(course);
 	}
-	
+
+
+	//删除课程
+	@RequestMapping("/deleteByID")
+	protected JSONObject deleteByID(@RequestBody JSONObject jsonObject) throws IOException {
+		if(jsonObject.isEmpty() || MjStringUtil.isEmpty(jsonObject.getIntValue("ID"))){
+			return RespMsgUtil.getFailResponseJoErrJSONError();
+		}
+		Course course;
+		int ID = jsonObject.getIntValue("ID");
+		try {
+			course = courseRepository.findByCourseID(ID);
+			if(course==null){
+				return RespMsgUtil.getFailResponseJoErrDeleteNotExist();
+			}
+			Teacher teacher = teacherRepository.findByTno(course.getTno());
+			teacher.getCourses().remove(course);
+			teacherRepository.save(teacher);
+			course.getClassrooms().clear();
+			classRoomRepository.deleteByCno(ID);
+			courseRepository.deleteByCourseID(ID);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return RespMsgUtil.getFailResponseJoErrHibernate();
+		}
+
+			return  RespMsgUtil.getSuccessResponseJo();
+
+	}
+
 }
