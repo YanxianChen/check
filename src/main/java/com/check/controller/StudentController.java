@@ -2,14 +2,6 @@ package com.check.controller;
 
 
 
-import java.io.IOException;
-import java.util.List;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.check.dao.StudentRepository;
@@ -17,19 +9,31 @@ import com.check.entity.Student;
 import com.check.util.MjJSONUtil;
 import com.check.util.MjStringUtil;
 import com.check.util.RespMsgUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.util.List;
 
 
 
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/student")
 public class StudentController {
 	
 	@Autowired//自动加载StudentRepository接口的实体bean
 	private StudentRepository studentRepository;
 	
+
+	
+	
 	//添加学生
-	@RequestMapping(value="/add")
+	@RequestMapping("/add")
 	protected JSONObject add(@RequestBody JSONObject jsonObject) throws IOException {
 		JSONObject jo = null;
 		int sno = jsonObject.getIntValue("sno");

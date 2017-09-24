@@ -1,0 +1,67 @@
+<!Doctype html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui" />
+    <title>Check</title>
+    <link th:href="@{bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{bootstrap/css/bootstrap-theme.min.css}" rel="stylesheet" />
+    <link rel="shortcut icon"  href="favicon.ico">
+    <script th:src="@{jquery-3.1.1.js}" type="text/javascript"></script>
+    <script th:src="@{jquery.validate.js}" type="text/javascript"></script>
+    <script th:src="@{messages_zh.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.min.js}"></script>
+
+    <style>
+        .tr_style{
+            font-size: medium;
+            font-family: Monaco;
+        }
+        .div_style{
+            font-size:x-large;
+            font-family:InputMono;
+            color: green
+        }
+    </style>
+
+</head>
+
+
+
+
+
+<body>
+
+
+<div class="container">
+    <th:block th:include="/index :: header"></th:block>
+
+    <div th:if="${not #lists.isEmpty(records)}" class="div_style" th:text="${student}+'同学,这是您的签到记录!'">
+    </div>
+    <div th:if="${#lists.isEmpty(records)}" class="div_style" th:text="${student}+'同学,抱歉该课程下还没有您的签到记录!'">
+    </div>
+
+    <div th:if="${not #lists.isEmpty(records)}">
+        <table class="table table-striped">
+            <tr class="tr_style">
+                <th>课程</th>
+                <th>学生</th>
+                <th>签到序次</th>
+                <th>出勤记录</th>
+                <th>时间</th>
+            </tr>
+            <tr th:each="record : ${records}" class="tr_style">
+                <td th:text="${cname}"></td>
+                <td th:text="${student}"></td>
+                <td th:text="${record.number}"></td>
+                <td th:text="${record.attendence} eq 1? '出勤':'缺勤'"></td>
+                <td th:text="${record.time}"></td>
+            </tr>
+        </table>
+    </div>
+    <div style="font-size:large;font-family:InputMono;color: blue">
+        <a th:href="@{/MyCourse}"> <<返回 </a>
+    </div>
+</div>
+</body>
+</html>
